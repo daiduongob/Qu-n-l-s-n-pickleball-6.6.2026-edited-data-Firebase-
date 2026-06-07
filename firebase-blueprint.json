@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user in the system",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "username": { "type": "string" },
+        "password": { "type": "string" },
+        "skillRating": { "type": "number" },
+        "isReady": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["free", "playing"] },
+        "courtId": { "type": "string" },
+        "waitStartTime": { "type": "number" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["id", "username"]
+    },
+    "Court": {
+      "title": "Court",
+      "description": "A playing court",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["empty", "waiting_list", "playing"] },
+        "players": { "type": "array" },
+        "waitingTime": { "type": "number" }
+      },
+      "required": ["id", "name", "status", "players"]
+    },
+    "MatchHistory": {
+      "title": "Match History",
+      "description": "Historical matches",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "courtName": { "type": "string" },
+        "teamA": { "type": "array" },
+        "teamB": { "type": "array" },
+        "scoreA": { "type": "number" },
+        "scoreB": { "type": "number" },
+        "date": { "type": "number" }
+      },
+      "required": ["id", "courtName", "teamA", "teamB", "date"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "courts/{courtId}": {
+      "schema": "Court",
+      "description": "Pickleball courts"
+    },
+    "matches/{matchId}": {
+      "schema": "MatchHistory",
+      "description": "Match history records"
+    }
+  }
+}

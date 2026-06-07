@@ -1,0 +1,6 @@
+{
+  "name": "Pickleball Manager",
+  "description": "Pickleball court management, auto matchmaking and statistics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
