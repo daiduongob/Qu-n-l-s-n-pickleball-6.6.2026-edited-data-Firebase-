@@ -146,11 +146,17 @@ export async function callApi(endpoint: string, method: string = 'POST', body?: 
                  const batch = writeBatch(db);
                  batch.update(doc(db, "courts", u.courtId), { status: 'empty', players: [] });
                  c.players.forEach((pid: string) => {
-                    batch.update(doc(db, "users", pid), { courtId: null });
+                    batch.update(doc(db, "users", pid), { courtId: null, status: 'free' });
                  });
                  await batch.commit();
               }
             }
+          }
+        }
+        if (body.status !== undefined && u.status !== body.status) {
+          updates.status = body.status;
+          if (body.status === 'free') {
+            updates.courtId = null;
           }
         }
         await updateDoc(uRef, updates);

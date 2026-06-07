@@ -14,15 +14,21 @@ import AdminTab from './components/AdminTab';
 export default function App() {
   const [state, setState] = useState<AppState>({ users: [], courts: [], matches: [] });
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [selectedUserForProfile, setSelectedUserForProfile] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState('Đăng nhập');
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [confirmData, setConfirmData] = useState<{ message: string, onConfirm: () => void } | null>(null);
 
   const currentUserRef = useRef<User | null>(currentUser);
+  const selectedUserForProfileRef = useRef<User | null>(selectedUserForProfile);
 
   useEffect(() => {
     currentUserRef.current = currentUser;
   }, [currentUser]);
+
+  useEffect(() => {
+    selectedUserForProfileRef.current = selectedUserForProfile;
+  }, [selectedUserForProfile]);
 
   const showAlert = (message: string) => setAlertMessage(message);
   const showConfirm = (message: string, onConfirm: () => void) => setConfirmData({ message, onConfirm });
@@ -43,6 +49,20 @@ export default function App() {
            if (currentUserRef.current && currentUserRef.current.id === latestUser.id) {
               setCurrentUser(null);
               setActiveTab('Đăng nhập');
+           }
+        }
+      }
+
+      const latestSelect = selectedUserForProfileRef.current;
+      if (latestSelect) {
+        const upSelect = data.users.find((u: User) => u.id === latestSelect.id);
+        if (upSelect) {
+           if (selectedUserForProfileRef.current && selectedUserForProfileRef.current.id === latestSelect.id) {
+              setSelectedUserForProfile(upSelect);
+           }
+        } else {
+           if (selectedUserForProfileRef.current && selectedUserForProfileRef.current.id === latestSelect.id) {
+              setSelectedUserForProfile(null);
            }
         }
       }
@@ -83,12 +103,15 @@ export default function App() {
     if (t === 'Đăng xuất') {
       handleLogout();
     } else {
+      if (t === 'Trang cá nhân') {
+        setSelectedUserForProfile(null);
+      }
       setActiveTab(t);
     }
   };
 
   return (
-    <AppContext.Provider value={{ ...state, currentUser, setCurrentUser, refreshState, showAlert, showConfirm, setActiveTab }}>
+    <AppContext.Provider value={{ ...state, currentUser, setCurrentUser, refreshState, showAlert, showConfirm, setActiveTab, selectedUserForProfile, setSelectedUserForProfile }}>
       <div className="min-h-screen bg-slate-950 text-white font-sans flex flex-col relative overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">

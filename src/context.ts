@@ -9,6 +9,8 @@ interface AppContextType extends AppState {
   showAlert: (message: string) => void;
   showConfirm: (message: string, onConfirm: () => void) => void;
   setActiveTab: (tab: string) => void;
+  selectedUserForProfile: User | null;
+  setSelectedUserForProfile: (user: User | null) => void;
 }
 
 export const AppContext = createContext<AppContextType | null>(null);

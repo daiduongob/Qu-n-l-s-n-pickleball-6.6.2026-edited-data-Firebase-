@@ -1,24 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { callApi } from '../api';
 import { useAppContext } from '../context';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 
 export default function ProfileTab() {
-  const { currentUser, matches, refreshState, setCurrentUser, showAlert, showConfirm } = useAppContext();
+  const { currentUser, matches, refreshState, setCurrentUser, showAlert, showConfirm, selectedUserForProfile, setSelectedUserForProfile, setActiveTab } = useAppContext();
   const [isEditing, setIsEditing] = useState(false);
 
-  const [name, setName] = useState(currentUser?.name || '');
-  const [password, setPassword] = useState('');
-  const [skillRating, setSkillRating] = useState(currentUser?.skillRating || 1.0);
+  const displayUser = selectedUserForProfile || currentUser;
 
-  if (!currentUser) return null;
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [skillRating, setSkillRating] = useState(1.0);
+
+  useEffect(() => {
+    if (displayUser) {
+      setName(displayUser.name);
+      setPassword('');
+      setSkillRating(displayUser.skillRating);
+      setIsEditing(false);
+    }
+  }, [displayUser]);
+
+  if (!currentUser || !displayUser) return null;
 
   const isAdmin = currentUser.username === 'admin';
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    await callApi(`/api/users/${currentUser.id}`, 'POST', { name, password: password || undefined, skillRating: isAdmin ? skillRating : undefined });
+    await callApi(`/api/users/${displayUser.id}`, 'POST', { name, password: password || undefined, skillRating: isAdmin ? skillRating : undefined });
     showAlert('Cập nhật thành công');
     setIsEditing(false);
     refreshState();
@@ -28,28 +39,44 @@ export default function ProfileTab() {
     const checked = e.target.checked;
     if (checked) {
       showConfirm('Bạn có chắc chắn muốn chuyển trạng thái sẵn sàng thi đấu không?', async () => {
-        await callApi(`/api/users/${currentUser.id}`, 'POST', { isReady: checked });
+        await callApi(`/api/users/${displayUser.id}`, 'POST', { isReady: checked });
         refreshState();
       });
     } else {
-      await callApi(`/api/users/${currentUser.id}`, 'POST', { isReady: checked });
+      await callApi(`/api/users/${displayUser.id}`, 'POST', { isReady: checked });
       refreshState();
     }
   };
 
   // Find user match history
-  const userMatches = matches.filter(m => m.teamA.includes(currentUser.id) || m.teamB.includes(currentUser.id));
+  const userMatches = matches.filter(m => m.teamA.includes(displayUser.id) || m.teamB.includes(displayUser.id));
   
   // Dummy chart data from current skill if history isn't full, otherwise mock progression
   const chartData = [
-     { date: 'Khởi đầu', skill: Math.max(1.0, Number((currentUser.skillRating - (userMatches.length * 0.1)).toFixed(1))) }
+     { date: 'Khởi đầu', skill: Math.max(1.0, Number((displayUser.skillRating - (userMatches.length * 0.1)).toFixed(1))) }
   ];
   userMatches.forEach((m, i) => {
-     chartData.push({ date: `Match ${i+1}`, skill: currentUser.skillRating }); // Simplified. In reality we'd track history.
+     chartData.push({ date: `Match ${i+1}`, skill: displayUser.skillRating }); // Simplified. In reality we'd track history.
   });
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Admin view banner */}
+      {selectedUserForProfile && (
+        <div className="md:col-span-2 flex items-center justify-between p-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 text-yellow-200 text-xs font-bold uppercase tracking-wide">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 bg-yellow-500 rounded-full animate-ping"></span>
+            <span>Chế độ Admin: Đang quản lý trang cá nhân của {selectedUserForProfile.name} ({selectedUserForProfile.username})</span>
+          </div>
+          <button 
+            onClick={() => { setSelectedUserForProfile(null); setActiveTab('Admin'); }}
+            className="px-3 py-1 bg-yellow-500 text-slate-950 rounded hover:bg-yellow-400 font-black tracking-widest text-[9px] uppercase transition-colors"
+          >
+            Quay lại Admin
+          </button>
+        </div>
+      )}
+
       {/* Profile Card */}
       <div className="p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md">
         <h2 className="text-xl font-bold mb-4 text-emerald-400">Thông tin cá nhân</h2>
@@ -62,7 +89,7 @@ export default function ProfileTab() {
             </div>
             <div>
               <label className="block text-sm font-medium text-white/80">Username (Không thể đổi)</label>
-              <input disabled type="text" className="w-full bg-white/5 opacity-50 border border-white/10 rounded p-2 text-white" value={currentUser.username} />
+              <input disabled type="text" className="w-full bg-white/5 opacity-50 border border-white/10 rounded p-2 text-white" value={displayUser.username} />
             </div>
             <div>
               <label className="block text-sm font-medium text-white/80">Mật khẩu mới (bỏ trống nếu không đổi)</label>
@@ -83,15 +110,15 @@ export default function ProfileTab() {
           <div className="space-y-4 text-sm">
             <div className="grid grid-cols-2">
               <span className="text-white/50 uppercase tracking-widest text-[10px] mt-1">Họ tên:</span>
-              <span className="font-medium text-white/90">{currentUser.name}</span>
+              <span className="font-medium text-white/90">{displayUser.name}</span>
             </div>
             <div className="grid grid-cols-2">
               <span className="text-white/50 uppercase tracking-widest text-[10px] mt-1">Username:</span>
-              <span className="font-medium text-white/90">{currentUser.username}</span>
+              <span className="font-medium text-white/90">{displayUser.username}</span>
             </div>
             <div className="grid grid-cols-2 mt-2">
               <span className="text-white/50 uppercase tracking-widest text-[10px] mt-1">Điểm trình:</span>
-              <span className="font-bold text-emerald-400 text-lg">{currentUser.skillRating.toFixed(1)}</span>
+              <span className="font-bold text-emerald-400 text-lg">{displayUser.skillRating.toFixed(1)}</span>
             </div>
             <div className="pt-4 flex flex-wrap gap-4 items-center border-t border-white/10 mt-2">
               <button onClick={() => setIsEditing(true)} className="bg-white/5 text-white/80 border border-white/10 px-4 py-2 rounded-lg text-xs font-medium hover:bg-white/10">Sửa thông tin</button>
@@ -101,7 +128,7 @@ export default function ProfileTab() {
                   type="checkbox" 
                   id="readySwitch" 
                   className="w-4 h-4 accent-emerald-500"
-                  checked={currentUser.isReady} 
+                  checked={displayUser.isReady} 
                   onChange={handleToggleReady} 
                 />
                 <label htmlFor="readySwitch" className="text-xs font-bold text-emerald-400 uppercase tracking-tighter cursor-pointer">Sẵn sàng thi đấu</label>
