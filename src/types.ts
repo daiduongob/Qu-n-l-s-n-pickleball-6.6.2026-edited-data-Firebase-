@@ -2,11 +2,13 @@ export interface User {
   id: string;
   name: string;
   username: string;
+  password?: string;
   skillRating: number;
   isReady: boolean;
   status: 'free' | 'playing';
   courtId: string | null;
   waitStartTime: number | null;
+  createdAt?: number;
 }
 
 export interface Court {

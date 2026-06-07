@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { AppContext } from './context';
 import { AppState, User } from './types';
 import { fetchState } from './api';
@@ -18,6 +18,12 @@ export default function App() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [confirmData, setConfirmData] = useState<{ message: string, onConfirm: () => void } | null>(null);
 
+  const currentUserRef = useRef<User | null>(currentUser);
+
+  useEffect(() => {
+    currentUserRef.current = currentUser;
+  }, [currentUser]);
+
   const showAlert = (message: string) => setAlertMessage(message);
   const showConfirm = (message: string, onConfirm: () => void) => setConfirmData({ message, onConfirm });
 
@@ -25,13 +31,19 @@ export default function App() {
     try {
       const data = await fetchState();
       setState(data);
-      if (currentUser) {
-        const upUser = data.users.find((u: User) => u.id === currentUser.id);
+      
+      const latestUser = currentUserRef.current;
+      if (latestUser) {
+        const upUser = data.users.find((u: User) => u.id === latestUser.id);
         if (upUser) {
-           setCurrentUser(upUser);
+           if (currentUserRef.current && currentUserRef.current.id === latestUser.id) {
+              setCurrentUser(upUser);
+           }
         } else {
-           setCurrentUser(null);
-           setActiveTab('Đăng nhập');
+           if (currentUserRef.current && currentUserRef.current.id === latestUser.id) {
+              setCurrentUser(null);
+              setActiveTab('Đăng nhập');
+           }
         }
       }
     } catch (err) {
