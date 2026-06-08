@@ -3,6 +3,7 @@ import { callApi } from '../api';
 import { useAppContext } from '../context';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
+import { Flag } from 'lucide-react';
 
 export default function ProfileTab() {
   const { currentUser, matches, refreshState, setCurrentUser, showAlert, showConfirm, selectedUserForProfile, setSelectedUserForProfile, setActiveTab } = useAppContext();
@@ -159,17 +160,31 @@ export default function ProfileTab() {
             <h3 className="text-sm font-bold uppercase tracking-wider text-white/50 mb-2">Lịch sử trận đấu ({userMatches.length} trận)</h3>
             <div className="max-h-48 overflow-y-auto border border-white/10 rounded-lg divide-y divide-white/5 bg-white/5">
               {userMatches.length === 0 ? <p className="p-4 text-white/40 text-xs">Chưa có trận đấu nào.</p> : null}
-              {userMatches.map(m => (
-                <div key={m.id} className="p-3 text-sm hover:bg-white/5">
-                  <div className="flex justify-between font-bold text-emerald-400 text-xs uppercase tracking-tighter">
-                     <span>{m.courtName}</span>
-                     <span className="text-[10px] text-white/40 font-mono tracking-widest">{format(new Date(m.date), 'dd/MM/yyyy HH:mm')}</span>
+              {userMatches.map(m => {
+                const isTeamA = m.teamA.includes(displayUser.id);
+                const isTeamB = m.teamB.includes(displayUser.id);
+                const isWinA = m.scoreA > m.scoreB;
+                const isWinB = m.scoreB > m.scoreA;
+                return (
+                  <div key={m.id} className="p-3 text-sm hover:bg-white/5">
+                    <div className="flex justify-between font-bold text-emerald-400 text-xs uppercase tracking-tighter">
+                       <span>{m.courtName}</span>
+                       <span className="text-[10px] text-white/40 font-mono tracking-widest">{format(new Date(m.date), 'dd/MM/yyyy HH:mm')}</span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-3 text-xs">
+                      <div className={`flex items-center gap-1 ${isWinA ? 'text-yellow-400 font-bold' : 'text-white/60'}`}>
+                        {isTeamA && <Flag className="w-3 h-3 text-blue-400 fill-blue-500" />}
+                        <span>Đội A ({m.scoreA})</span>
+                      </div>
+                      <span className="text-white/10">|</span>
+                      <div className={`flex items-center gap-1 ${isWinB ? 'text-yellow-400 font-bold' : 'text-white/60'}`}>
+                        <span>Đội B ({m.scoreB})</span>
+                        {isTeamB && <Flag className="w-3 h-3 text-blue-400 fill-blue-500" />}
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-2 text-white/80">
-                    Đội A <span className="font-bold text-white">{m.scoreA}</span> - <span className="font-bold text-white">{m.scoreB}</span> Đội B
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
