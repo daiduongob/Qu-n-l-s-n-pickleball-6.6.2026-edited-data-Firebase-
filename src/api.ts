@@ -46,7 +46,9 @@ export async function fetchState(): Promise<AppState> {
   return { users, courts, matches };
 }
 
-// In-browser mock autoMatch
+// In-browser mock autoMatch with smart matching logic:
+// 1. High priority for players who have been waiting the longest (anchor player has earliest waitStartTime).
+// 2. Selects companions who have a similar skill rating to the anchor player, balanced with their waiting time limit.
 async function autoMatchDB() {
   const { users, courts } = await fetchState();
   const waitingUsers = users
@@ -57,7 +59,29 @@ async function autoMatchDB() {
     const emptyCourts = courts.filter((c: any) => c.status === 'empty');
     if (emptyCourts.length > 0) {
       const court = emptyCourts[0];
-      const selectedUsers = waitingUsers.slice(0, 4);
+      
+      // Step A: Pick the absolute longest waiting player as the anchor
+      const anchor = waitingUsers[0];
+      
+      // Step B: Filter other potential players
+      const now = Date.now();
+      const candidates = waitingUsers.filter((u: any) => u.id !== anchor.id);
+      
+      // Step C: Score candidates based on:
+      // - Skill similarity to anchor (lower is better, weight = 20 score points per 1.0 rating diff)
+      // - Waiting duration time (longer waiting time lowers the score further, i.e., promoting them)
+      const candidatesWithScore = candidates.map((u: any) => {
+        const skillDiff = Math.abs(u.skillRating - anchor.skillRating);
+        const waitMin = (now - (u.waitStartTime || now)) / 60000;
+        // score scale: each 1.0 of skill gap is equivalent to 20 minutes of waiting penalty.
+        const score = skillDiff * 20 - waitMin;
+        return { u, score };
+      });
+      
+      // Sort candidates ascending by score (best companions first)
+      candidatesWithScore.sort((a, b) => a.score - b.score);
+      const selectedCompanions = candidatesWithScore.slice(0, 3).map(item => item.u);
+      const selectedUsers = [anchor, ...selectedCompanions];
       
       const batch = writeBatch(db);
       batch.update(doc(db, "courts", court.id), {
@@ -72,10 +96,11 @@ async function autoMatchDB() {
         });
       });
       await batch.commit();
-      await autoMatchDB();
+      await autoMatchDB(); // recursively schedule next general empty court
     }
   }
 }
+
 
 export async function callApi(endpoint: string, method: string = 'POST', body?: any) {
   try {
@@ -272,7 +297,13 @@ export async function callApi(endpoint: string, method: string = 'POST', body?: 
               if (matchDoc.teamA.includes(pid)) ratingChange = A_win ? 0.1 : (A_win === B_win ? 0 : -0.1);
               else if (matchDoc.teamB.includes(pid)) ratingChange = B_win ? 0.1 : (A_win === B_win ? 0 : -0.1);
               const newRating = Math.max(1.0, Math.min(6.0, Number((u.skillRating + ratingChange).toFixed(1))));
-              batch.update(doc(db, "users", pid), { status: 'free', courtId: null, skillRating: newRating });
+              batch.update(doc(db, "users", pid), { 
+                status: 'free', 
+                courtId: null, 
+                skillRating: newRating,
+                isReady: true,
+                waitStartTime: Date.now() // Reset waiting time to 0 (starts waiting from now)
+              });
            }
         }
         batch.update(cRef, { status: 'empty', players: [], waitingTime: null });
