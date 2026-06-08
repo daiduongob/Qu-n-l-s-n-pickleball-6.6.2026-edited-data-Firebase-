@@ -9,6 +9,10 @@ export default function CourtsTab() {
   const getUserName = (id: string) => users.find(u => u.id === id)?.name || id;
 
   const handleCreateCourt = async () => {
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+      return;
+    }
     if (!newCourtName) return;
     await callApi('/api/courts', 'POST', { name: newCourtName, status: 'empty' });
     setNewCourtName('');
@@ -17,7 +21,7 @@ export default function CourtsTab() {
 
   const handleDeleteCourt = async (id: string) => {
     if (currentUser?.username === 'adminThuNghiem1h') {
-      showAlert('Tài khoản adminThuNghiem1h không có quyền xóa Sân!');
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
       return;
     }
     const court = courts.find(c => c.id === id);
@@ -36,6 +40,10 @@ export default function CourtsTab() {
   };
 
   const handleReleaseCourt = async (id: string) => {
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+      return;
+    }
     const court = courts.find(c => c.id === id);
     if (court && court.status === 'playing') {
       showAlert('Sân này đang trong trận đấu! Không thể giải phóng sân khi đang thi đấu.');

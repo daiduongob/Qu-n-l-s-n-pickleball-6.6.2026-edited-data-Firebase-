@@ -30,6 +30,11 @@ export default function ProfileTab() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+      setIsEditing(false);
+      return;
+    }
     await callApi(`/api/users/${displayUser.id}`, 'POST', { name, password: password || undefined, skillRating: isAdmin ? skillRating : undefined });
     showAlert('Cập nhật thành công');
     setIsEditing(false);
@@ -38,6 +43,11 @@ export default function ProfileTab() {
 
   const handleToggleReady = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+      e.target.checked = !checked;
+      return;
+    }
     if (checked) {
       showConfirm('Bạn có chắc chắn muốn chuyển trạng thái sẵn sàng thi đấu không?', async () => {
         await callApi(`/api/users/${displayUser.id}`, 'POST', { isReady: checked });

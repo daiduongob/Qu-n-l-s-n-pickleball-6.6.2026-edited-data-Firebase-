@@ -5,7 +5,7 @@ import { User, Court } from '../types';
 
 export default function WaitingListTab() {
   const { courts, users, currentUser, refreshState, showAlert, showConfirm } = useAppContext();
-  const isAdmin = currentUser?.username === 'admin';
+  const isAdmin = currentUser?.username === 'admin' || currentUser?.username === 'adminThuNghiem1h';
 
   const [endingCourt, setEndingCourt] = useState<Court | null>(null);
   const [scoreA, setScoreA] = useState(0);
@@ -28,6 +28,10 @@ export default function WaitingListTab() {
 
   const handleEndMatch = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+      return;
+    }
     if (!endingCourt) return;
     await callApi(`/api/courts/${endingCourt.id}/end`, 'POST', { scoreA, scoreB, updateRatings });
     setEndingCourt(null);
@@ -38,11 +42,19 @@ export default function WaitingListTab() {
   };
 
   const handleStartMatch = async (id: string) => {
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+      return;
+    }
     await callApi(`/api/courts/${id}/start`, 'POST');
     refreshState();
   };
 
   const handleResetRandom = () => {
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+      return;
+    }
     showConfirm('Bạn có chắc chắn muốn chọn lại ngẫu nhiên toàn bộ người chơi vào danh sách chờ?', async () => {
       await callApi('/api/courts/reset-random', 'POST');
       refreshState();
@@ -50,6 +62,10 @@ export default function WaitingListTab() {
   };
 
   const handleSaveAdjust = async () => {
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+      return;
+    }
     if (!adjustingCourt) return;
     if (adjustedPlayers.length !== 4 && adjustedPlayers.length !== 0) {
       showAlert('Vui lòng chọn đủ 4 người chơi (hoặc 0 để clear)');
@@ -94,7 +110,13 @@ export default function WaitingListTab() {
                 </div>
               </div>
               {isAdmin && (
-                <button onClick={() => setEndingCourt(c)} className="w-full py-2 bg-rose-500/20 text-rose-400 border border-rose-500/40 rounded-lg text-xs font-bold hover:bg-rose-500/30 transition-all uppercase tracking-tight active:scale-[0.97] active:translate-y-[1px] active:bg-rose-500/40 active:text-rose-300">
+                <button onClick={() => {
+                  if (currentUser?.username === 'adminThuNghiem1h') {
+                    showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+                    return;
+                  }
+                  setEndingCourt(c);
+                }} className="w-full py-2 bg-rose-500/20 text-rose-400 border border-rose-500/40 rounded-lg text-xs font-bold hover:bg-rose-500/30 transition-all uppercase tracking-tight active:scale-[0.97] active:translate-y-[1px] active:bg-rose-500/40 active:text-rose-300">
                   Kết thúc trận đấu
                 </button>
               )}
@@ -147,7 +169,14 @@ export default function WaitingListTab() {
                 </div>
                 {isAdmin && (
                   <div className="flex gap-2">
-                    <button onClick={() => { setAdjustingCourt(c); setAdjustedPlayers(c.players); }} className="flex-1 py-2 bg-white/5 text-white/80 border border-white/10 rounded-lg text-xs hover:bg-white/10 active:bg-white/25 transition-all uppercase font-bold tracking-tight active:scale-95 active:translate-y-[1px] duration-75">
+                    <button onClick={() => {
+                      if (currentUser?.username === 'adminThuNghiem1h') {
+                        showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
+                        return;
+                      }
+                      setAdjustingCourt(c);
+                      setAdjustedPlayers(c.players);
+                    }} className="flex-1 py-2 bg-white/5 text-white/80 border border-white/10 rounded-lg text-xs hover:bg-white/10 active:bg-white/25 transition-all uppercase font-bold tracking-tight active:scale-95 active:translate-y-[1px] duration-75">
                       Điều Chỉnh
                     </button>
                     <button onClick={() => handleStartMatch(c.id)} className="flex-[2] py-2 bg-emerald-500 text-slate-950 rounded-lg text-xs font-black uppercase tracking-tighter hover:bg-emerald-400 active:bg-emerald-600 active:text-white transition-all active:scale-[0.98] active:translate-y-[1px] duration-75">

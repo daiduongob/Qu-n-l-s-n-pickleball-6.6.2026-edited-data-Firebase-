@@ -48,7 +48,7 @@ export default function AdminTab() {
 
   const handleEditClick = (u: User) => {
     if (currentUser?.username === 'adminThuNghiem1h') {
-      showAlert('Tài khoản adminThuNghiem1h không có quyền sửa đổi thông tin người chơi!');
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
       return;
     }
     setEditingUser(u);
@@ -77,7 +77,7 @@ export default function AdminTab() {
 
   const handleDelete = async (id: string) => {
     if (currentUser?.username === 'adminThuNghiem1h') {
-      showAlert('Tài khoản adminThuNghiem1h không có quyền xóa người chơi!');
+      showAlert('Đây là tài khoản admin thử nghiệm, chỉ xem, không có quyền điều chỉnh. Liên hệ người lập trình để có thông tin thêm!');
       return;
     }
     if (id === 'admin') {
