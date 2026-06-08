@@ -137,10 +137,10 @@ export default function App() {
                 <button
                   key={t.name}
                   onClick={() => handleTabClick(t.name)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap active:scale-95 active:translate-y-[1px] duration-75 ${
                     activeTab === t.name 
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10' 
-                    : t.name === 'Đăng xuất' ? 'text-rose-400 hover:bg-rose-500/10' : 'text-white/80 hover:bg-white/10'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10 active:bg-emerald-500/30' 
+                    : t.name === 'Đăng xuất' ? 'text-rose-400 hover:bg-rose-500/10 active:bg-rose-500/20' : 'text-white/80 hover:bg-white/10 active:bg-white/15'
                   }`}
                 >
                   {t.name}
@@ -181,7 +181,7 @@ export default function App() {
               <h3 className="text-emerald-400 font-bold mb-4 uppercase tracking-widest text-sm">Thông báo</h3>
               <p className="text-white/80 mb-6 font-medium leading-relaxed">{alertMessage}</p>
               <div className="flex justify-end">
-                <button onClick={() => setAlertMessage(null)} className="px-6 py-2 bg-emerald-500 text-slate-950 font-black rounded-lg uppercase tracking-tight text-xs hover:bg-emerald-400 transition-colors">Đóng</button>
+                <button onClick={() => setAlertMessage(null)} className="px-6 py-2 bg-emerald-500 text-slate-950 font-black rounded-lg uppercase tracking-tight text-xs hover:bg-emerald-400 active:bg-emerald-700 active:text-white active:scale-95 active:translate-y-[1px] transition-all duration-75">Đóng</button>
               </div>
             </div>
           </div>
@@ -193,8 +193,8 @@ export default function App() {
               <h3 className="text-amber-400 font-bold mb-4 uppercase tracking-widest text-sm">Xác nhận</h3>
               <p className="text-white/80 mb-6 font-medium leading-relaxed">{confirmData.message}</p>
               <div className="flex justify-end gap-3">
-                <button onClick={() => setConfirmData(null)} className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 uppercase tracking-widest text-xs font-bold transition-colors">Hủy</button>
-                <button onClick={() => { confirmData.onConfirm(); setConfirmData(null); }} className="px-6 py-2 bg-amber-500 text-slate-950 font-black rounded-lg uppercase tracking-tight text-xs hover:bg-amber-400 transition-colors">Đồng ý</button>
+                <button onClick={() => setConfirmData(null)} className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 active:bg-white/20 uppercase tracking-widest text-xs font-bold active:scale-95 active:translate-y-[1px] transition-all duration-100">Hủy</button>
+                <button onClick={() => { confirmData.onConfirm(); setConfirmData(null); }} className="px-6 py-2 bg-amber-500 text-slate-950 font-black rounded-lg uppercase tracking-tight text-xs hover:bg-amber-400 active:bg-amber-600 active:text-white active:scale-95 active:translate-y-[1px] transition-all duration-75">Đồng ý</button>
               </div>
             </div>
           </div>

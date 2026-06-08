@@ -21,7 +21,7 @@ export default function ProfileTab() {
       setSkillRating(displayUser.skillRating);
       setIsEditing(false);
     }
-  }, [displayUser]);
+  }, [displayUser?.id]);
 
   if (!currentUser || !displayUser) return null;
 
@@ -70,7 +70,7 @@ export default function ProfileTab() {
           </div>
           <button 
             onClick={() => { setSelectedUserForProfile(null); setActiveTab('Admin'); }}
-            className="px-3 py-1 bg-yellow-500 text-slate-950 rounded hover:bg-yellow-400 font-black tracking-widest text-[9px] uppercase transition-colors"
+            className="px-3 py-1 bg-yellow-500 text-slate-950 rounded hover:bg-yellow-400 active:bg-yellow-600 active:text-white font-black tracking-widest text-[9px] uppercase active:scale-95 active:translate-y-[1px] transition-all duration-75"
           >
             Quay lại Admin
           </button>
@@ -102,8 +102,8 @@ export default function ProfileTab() {
               </div>
             )}
             <div className="flex gap-2">
-              <button type="submit" className="bg-emerald-500 text-slate-950 px-4 py-2 rounded-lg font-bold">Lưu</button>
-              <button type="button" onClick={() => setIsEditing(false)} className="bg-white/10 text-white/80 px-4 py-2 rounded-lg hover:bg-white/20">Hủy</button>
+              <button type="submit" className="bg-emerald-500 text-slate-950 hover:bg-emerald-400 active:bg-emerald-700 active:text-white px-4 py-2 rounded-lg font-bold active:scale-95 active:translate-y-[1px] transition-all duration-75 shadow-lg shadow-emerald-500/10">Lưu</button>
+              <button type="button" onClick={() => setIsEditing(false)} className="bg-white/10 text-white/80 px-4 py-2 rounded-lg hover:bg-white/20 active:bg-white/5 active:scale-95 active:translate-y-[1px] transition-all duration-75">Hủy</button>
             </div>
           </form>
         ) : (
@@ -121,7 +121,7 @@ export default function ProfileTab() {
               <span className="font-bold text-emerald-400 text-lg">{displayUser.skillRating.toFixed(1)}</span>
             </div>
             <div className="pt-4 flex flex-wrap gap-4 items-center border-t border-white/10 mt-2">
-              <button onClick={() => setIsEditing(true)} className="bg-white/5 text-white/80 border border-white/10 px-4 py-2 rounded-lg text-xs font-medium hover:bg-white/10">Sửa thông tin</button>
+              <button onClick={() => setIsEditing(true)} className="bg-white/5 text-white/80 border border-white/10 px-4 py-2 rounded-lg text-xs font-medium hover:bg-white/10 active:bg-white/20 active:scale-95 active:translate-y-[1px] transition-all duration-75">Sửa thông tin</button>
               
               <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-lg">
                 <input 

@@ -82,18 +82,18 @@ export default function AdminTab() {
       </div>
       
       <div className="overflow-x-auto border border-white/10 rounded-lg bg-slate-900/50">
-        <table className="w-full text-xs text-left whitespace-nowrap">
+        <table className="w-full text-xs text-left whitespace-nowrap table-fixed min-w-[1050px]">
           <thead className="bg-white/5 text-white/40 uppercase text-[10px] tracking-widest border-b border-white/10">
             <tr>
-              <th className="p-3 text-center">STT</th>
-              <th className="p-3">Tên</th>
-              <th className="p-3">Username</th>
-              <th className="p-3 text-center">Trình</th>
-              <th className="p-3 text-center">Trận</th>
-              <th className="p-3 text-center">SS Thi đấu</th>
-              <th className="p-3 text-center">Trạng thái</th>
-              <th className="p-3 text-center">Sân</th>
-              <th className="p-3 text-right">Thao tác</th>
+              <th className="p-3 text-center w-[60px]">STT</th>
+              <th className="p-3 w-[240px]">Tên</th>
+              <th className="p-3 w-[140px]">Username</th>
+              <th className="p-3 text-center w-[80px]">Trình</th>
+              <th className="p-3 text-center w-[80px]">Trận</th>
+              <th className="p-3 text-center w-[110px]">SS Thi đấu</th>
+              <th className="p-3 text-center w-[110px]">Trạng thái</th>
+              <th className="p-3 text-center w-[100px]">Sân</th>
+              <th className="p-3 text-right w-[130px]">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -103,28 +103,30 @@ export default function AdminTab() {
                 onClick={() => handleRowClick(u)}
                 className="hover:bg-white/10 transition-all cursor-pointer group"
               >
-                <td className="p-3 text-center text-white/40 font-bold group-hover:text-emerald-400">{i + 1}</td>
-                <td className="p-3 font-bold text-white group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
-                  {u.name}
-                  <span className="text-[9px] text-white/20 font-normal px-1.5 py-0.5 border border-white/5 rounded hidden group-hover:inline-block">Click xem profile</span>
+                <td className="p-3 text-center text-white/40 font-bold group-hover:text-emerald-400 w-[60px] truncate">{i + 1}</td>
+                <td className="p-3 font-bold text-white group-hover:text-emerald-400 transition-colors w-[240px] truncate">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="truncate">{u.name}</span>
+                    <span className="text-[9px] text-white/20 font-normal px-1.5 py-0.5 border border-white/5 rounded hidden group-hover:inline-block shrink-0">Profile</span>
+                  </div>
                 </td>
-                <td className="p-3 text-white/60">{u.username}</td>
-                <td className="p-3 text-center font-black text-emerald-400">{u.skillRating.toFixed(1)}</td>
-                <td className="p-3 text-center font-mono text-white/80">{userMatchCounts[u.id]}</td>
-                <td className="p-3 text-center">
+                <td className="p-3 text-white/60 w-[140px] truncate">{u.username}</td>
+                <td className="p-3 text-center font-black text-emerald-400 w-[80px] truncate">{u.skillRating.toFixed(1)}</td>
+                <td className="p-3 text-center font-mono text-white/80 w-[80px] truncate">{userMatchCounts[u.id]}</td>
+                <td className="p-3 text-center w-[110px] truncate">
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest ${u.isReady ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/10 text-white/40'}`}>
                     {u.isReady ? 'SS' : 'Không'}
                   </span>
                 </td>
-                <td className="p-3 text-center">
+                <td className="p-3 text-center w-[110px] truncate">
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest ${u.status === 'playing' ? 'bg-rose-500/20 text-rose-300' : 'bg-blue-500/20 text-blue-300'}`}>
                     {u.status === 'playing' ? 'Đang đánh' : 'Rảnh'}
                   </span>
                 </td>
-                <td className="p-3 text-center text-white/60">{getCourtName(u.courtId)}</td>
-                <td className="p-3 text-right space-x-2" onClick={(e) => e.stopPropagation()}>
-                  <button onClick={() => handleEditClick(u)} className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-[10px] uppercase font-bold tracking-widest transition-colors">Sửa</button>
-                  <button onClick={() => handleDelete(u.id)} className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-2 py-1 rounded text-[10px] uppercase font-bold tracking-widest transition-colors">Xóa</button>
+                <td className="p-3 text-center text-white/60 w-[100px] truncate">{getCourtName(u.courtId)}</td>
+                <td className="p-3 text-right space-x-2 w-[130px] truncate" onClick={(e) => e.stopPropagation()}>
+                  <button onClick={() => handleEditClick(u)} className="bg-blue-500/10 hover:bg-blue-500/20 active:bg-blue-500/30 text-blue-400 px-2 py-1 rounded text-[10px] uppercase font-bold tracking-widest active:scale-90 active:translate-y-[1px] transition-all duration-75">Sửa</button>
+                  <button onClick={() => handleDelete(u.id)} className="bg-rose-500/10 hover:bg-rose-500/20 active:bg-rose-500/30 text-rose-400 px-2 py-1 rounded text-[10px] uppercase font-bold tracking-widest active:scale-90 active:translate-y-[1px] transition-all duration-75">Xóa</button>
                 </td>
               </tr>
             ))}
@@ -181,8 +183,8 @@ export default function AdminTab() {
               </div>
 
               <div className="flex justify-end gap-2 mt-6">
-                <button type="button" onClick={()=>setEditingUser(null)} className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 uppercase tracking-widest text-xs font-bold">Hủy</button>
-                <button type="submit" className="px-5 py-2 bg-emerald-500 text-slate-950 font-black rounded-lg hover:bg-emerald-400 uppercase tracking-tight text-xs">Lưu thay đổi</button>
+                <button type="button" onClick={()=>setEditingUser(null)} className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 active:bg-white/20 uppercase tracking-widest text-xs font-bold active:scale-95 active:translate-y-[1px] transition-all duration-75">Hủy</button>
+                <button type="submit" className="px-5 py-2 bg-emerald-500 text-slate-950 font-black rounded-lg hover:bg-emerald-400 active:bg-emerald-600 active:text-white uppercase tracking-tight text-xs active:scale-95 active:translate-y-[1px] transition-all duration-75">Lưu thay đổi</button>
               </div>
             </form>
           </div>

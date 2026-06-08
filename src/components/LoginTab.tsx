@@ -97,8 +97,8 @@ export default function LoginTab() {
             <input type="checkbox" id="regReady" className="accent-emerald-500" checked={regReady} onChange={e => setRegReady(e.target.checked)} />
             <label htmlFor="regReady" className="text-sm font-medium text-white/80">Sẵn sàng thi đấu</label>
           </div>
-          <button type="submit" className="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-lg hover:bg-emerald-400 transition-colors uppercase tracking-tight">Đăng ký</button>
-          <button type="button" onClick={() => setIsRegistering(false)} className="w-full text-emerald-400 font-medium py-2 hover:underline">Quay lại Đăng nhập</button>
+          <button type="submit" className="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-lg hover:bg-emerald-400 active:bg-emerald-600 active:text-white uppercase tracking-tight active:scale-[0.98] active:translate-y-[1px] transition-all duration-75">Đăng ký</button>
+          <button type="button" onClick={() => setIsRegistering(false)} className="w-full text-emerald-400 font-medium py-2 hover:text-emerald-300 hover:underline active:scale-95 transition-all duration-75">Quay lại Đăng nhập</button>
         </form>
       </div>
     );
@@ -143,8 +143,8 @@ export default function LoginTab() {
           <label className="block text-sm font-medium mb-1 text-white/80">Password</label>
           <input required type="password" className="w-full bg-white/5 border border-white/10 rounded p-2 text-white focus:outline-none focus:border-emerald-500" value={password} onChange={e => setPassword(e.target.value)} />
         </div>
-        <button type="submit" className="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-lg hover:bg-emerald-400 transition-colors uppercase tracking-tight">Đăng nhập</button>
-        <button type="button" onClick={() => setIsRegistering(true)} className="w-full text-emerald-400 font-medium py-2 hover:underline">Đăng ký tài khoản mới</button>
+        <button type="submit" className="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-lg hover:bg-emerald-400 active:bg-emerald-600 active:text-white uppercase tracking-tight active:scale-[0.98] active:translate-y-[1px] transition-all duration-75">Đăng nhập</button>
+        <button type="button" onClick={() => setIsRegistering(true)} className="w-full text-emerald-400 font-medium py-2 hover:text-emerald-300 hover:underline active:scale-95 transition-all duration-75">Đăng ký tài khoản mới</button>
       </form>
     </div>
   );

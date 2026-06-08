@@ -38,7 +38,7 @@ export default function CourtsTab() {
             value={newCourtName} 
             onChange={e=>setNewCourtName(e.target.value)} 
           />
-          <button onClick={handleCreateCourt} className="bg-emerald-500 text-slate-950 font-bold px-4 py-2 rounded text-xs uppercase tracking-tighter">Tạo mới Sân</button>
+          <button onClick={handleCreateCourt} className="bg-emerald-500 text-slate-950 hover:bg-emerald-400 active:bg-emerald-600 active:text-white font-bold px-4 py-2 rounded text-xs uppercase tracking-tighter active:scale-95 active:translate-y-[1px] transition-all duration-75">Tạo mới Sân</button>
         </div>
       </div>
 
@@ -67,7 +67,7 @@ export default function CourtsTab() {
             </div>
 
             <div className="mt-4 pt-4 border-t border-white/10 flex justify-end gap-2 text-sm">
-              <button onClick={() => handleDeleteCourt(c.id)} className="text-rose-400 hover:bg-rose-500/10 px-2 py-1 rounded text-xs uppercase tracking-widest font-bold">Xóa sân</button>
+              <button onClick={() => handleDeleteCourt(c.id)} className="text-rose-400 hover:bg-rose-500/10 hover:text-white active:bg-rose-500/30 px-2 py-1 rounded text-xs uppercase tracking-widest font-bold active:scale-90 active:translate-y-[1px] transition-all duration-75">Xóa sân</button>
             </div>
           </div>
         ))}

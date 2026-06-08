@@ -92,7 +92,7 @@ export default function WaitingListTab() {
                 </div>
               </div>
               {isAdmin && (
-                <button onClick={() => setEndingCourt(c)} className="w-full py-2 bg-rose-500/20 text-rose-400 border border-rose-500/40 rounded-lg text-xs font-bold hover:bg-rose-500/30 transition-all uppercase tracking-tight">
+                <button onClick={() => setEndingCourt(c)} className="w-full py-2 bg-rose-500/20 text-rose-400 border border-rose-500/40 rounded-lg text-xs font-bold hover:bg-rose-500/30 transition-all uppercase tracking-tight active:scale-[0.97] active:translate-y-[1px] active:bg-rose-500/40 active:text-rose-300">
                   Kết thúc trận đấu
                 </button>
               )}
@@ -113,7 +113,7 @@ export default function WaitingListTab() {
               <button 
                 onClick={handleResetRandom}
                 title="Chọn lại ngẫu nhiên toàn bộ người chơi vào danh sách chờ"
-                className="px-2 py-0.5 text-[10px] font-bold bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 rounded uppercase tracking-widest transition-colors flex items-center gap-1"
+                className="px-2 py-0.5 text-[10px] font-bold bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 rounded uppercase tracking-widest transition-all flex items-center gap-1 active:scale-95 active:translate-y-[1px] active:bg-purple-500/40 active:text-purple-200 duration-75"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                 Reset ngẫu nhiên
@@ -145,10 +145,10 @@ export default function WaitingListTab() {
                 </div>
                 {isAdmin && (
                   <div className="flex gap-2">
-                    <button onClick={() => { setAdjustingCourt(c); setAdjustedPlayers(c.players); }} className="flex-1 py-2 bg-white/5 text-white/80 border border-white/10 rounded-lg text-xs hover:bg-white/10 transition-colors uppercase font-bold tracking-tight">
+                    <button onClick={() => { setAdjustingCourt(c); setAdjustedPlayers(c.players); }} className="flex-1 py-2 bg-white/5 text-white/80 border border-white/10 rounded-lg text-xs hover:bg-white/10 active:bg-white/25 transition-all uppercase font-bold tracking-tight active:scale-95 active:translate-y-[1px] duration-75">
                       Điều Chỉnh
                     </button>
-                    <button onClick={() => handleStartMatch(c.id)} className="flex-[2] py-2 bg-emerald-500 text-slate-950 rounded-lg text-xs font-black uppercase tracking-tighter hover:bg-emerald-400 transition-colors">
+                    <button onClick={() => handleStartMatch(c.id)} className="flex-[2] py-2 bg-emerald-500 text-slate-950 rounded-lg text-xs font-black uppercase tracking-tighter hover:bg-emerald-400 active:bg-emerald-600 active:text-white transition-all active:scale-[0.98] active:translate-y-[1px] duration-75">
                       BẮT ĐẦU NGAY
                     </button>
                   </div>
@@ -218,8 +218,8 @@ export default function WaitingListTab() {
                 </div>
               </div>
               <div className="flex justify-end gap-2 mt-6">
-                <button type="button" onClick={()=>setEndingCourt(null)} className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 uppercase tracking-widest text-xs font-bold">Hủy</button>
-                <button type="submit" className="px-4 py-2 bg-emerald-500 text-slate-950 font-black rounded-lg hover:bg-emerald-400 uppercase tracking-tight text-xs">Lưu KQ & Rời</button>
+                <button type="button" onClick={()=>setEndingCourt(null)} className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 active:bg-white/20 uppercase tracking-widest text-xs font-bold active:scale-95 active:translate-y-[1px] transition-all duration-75">Hủy</button>
+                <button type="submit" className="px-4 py-2 bg-emerald-500 text-slate-950 font-black rounded-lg hover:bg-emerald-400 active:bg-emerald-600 active:text-white uppercase tracking-tight text-xs active:scale-95 active:translate-y-[1px] transition-all duration-75">Lưu KQ & Rời</button>
               </div>
             </form>
           </div>
@@ -274,13 +274,13 @@ export default function WaitingListTab() {
                   const shuffled = [...available].sort(() => 0.5 - Math.random());
                   setAdjustedPlayers(shuffled.slice(0, 4).map(u => u.id));
                 }} 
-                className="px-4 py-2 bg-blue-500/20 text-blue-400 font-bold rounded-lg hover:bg-blue-500/30 uppercase tracking-tight text-xs"
+                className="px-4 py-2 bg-blue-500/20 text-blue-400 font-bold rounded-lg hover:bg-blue-500/30 active:bg-blue-500/40 active:text-blue-200 uppercase tracking-tight text-xs active:scale-95 active:translate-y-[1px] transition-all duration-75"
               >
                 Chọn Ngẫu Nhiên
               </button>
               <div className="flex gap-2">
-                <button onClick={()=>setAdjustingCourt(null)} className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 uppercase tracking-widest text-xs font-bold">Hủy</button>
-                <button onClick={handleSaveAdjust} className="px-4 py-2 bg-emerald-500 text-slate-950 font-black rounded-lg hover:bg-emerald-400 uppercase tracking-tight text-xs">Lưu danh sách</button>
+                <button onClick={()=>setAdjustingCourt(null)} className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 active:bg-white/20 uppercase tracking-widest text-xs font-bold active:scale-95 active:translate-y-[1px] transition-all duration-75">Hủy</button>
+                <button onClick={handleSaveAdjust} className="px-4 py-2 bg-emerald-500 text-slate-950 font-black rounded-lg hover:bg-emerald-400 active:bg-emerald-600 active:text-white uppercase tracking-tight text-xs active:scale-95 active:translate-y-[1px] transition-all duration-75">Lưu danh sách</button>
               </div>
             </div>
           </div>
