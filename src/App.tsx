@@ -160,7 +160,7 @@ export default function App() {
                 QUẢN LÝ SÂN PICKLEBALL
               </h1>
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full animate-fast-yellow-pulse"></div>
                 <span className="text-[10px] uppercase tracking-widest text-emerald-500 font-bold">Hệ thống thời gian thực do Đại Dương lập trình</span>
               </div>
             </div>
