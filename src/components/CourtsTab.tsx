@@ -3,7 +3,7 @@ import { useAppContext } from '../context';
 import { callApi } from '../api';
 
 export default function CourtsTab() {
-  const { courts, users, refreshState, showConfirm, showAlert } = useAppContext();
+  const { currentUser, courts, users, refreshState, showConfirm, showAlert } = useAppContext();
   const [newCourtName, setNewCourtName] = useState('');
 
   const getUserName = (id: string) => users.find(u => u.id === id)?.name || id;
@@ -16,6 +16,10 @@ export default function CourtsTab() {
   };
 
   const handleDeleteCourt = async (id: string) => {
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Tài khoản adminThuNghiem1h không có quyền xóa Sân!');
+      return;
+    }
     showConfirm('Xóa sân này?', async () => {
       const res = await callApi(`/api/courts/${id}`, 'DELETE');
       if (!res.success) {

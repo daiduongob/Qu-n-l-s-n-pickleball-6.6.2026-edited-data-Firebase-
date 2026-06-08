@@ -31,6 +31,7 @@ export async function fetchState(): Promise<AppState> {
      if (users.length === 0) {
         let dummyUsers = [
           { id: 'admin', name: 'Admin', username: 'admin', password: '123', skillRating: 6.0, isReady: false, status: 'free', courtId: null, waitStartTime: null, createdAt: Date.now() },
+           { id: 'adminThuNghiem1h', name: 'Admin Thử Nghiệm 1H', username: 'adminThuNghiem1h', password: '123', skillRating: 5.0, isReady: false, status: 'free', courtId: null, waitStartTime: null, createdAt: Date.now() },
           ...Array.from({ length: 8 }).map((_, i) => ({
             id: `user${i + 1}`, name: `Người chơi ${i + 1}`, username: `user${i + 1}`, password: '123', skillRating: Number((Math.random() * (3.0 - 2.0) + 2.0).toFixed(1)), isReady: true, status: 'free', courtId: null, waitStartTime: Date.now(), createdAt: Date.now()
           }))
@@ -127,6 +128,23 @@ export async function callApi(endpoint: string, method: string = 'POST', body?: 
   try {
     if (endpoint === '/api/login') {
       const { username, password } = body;
+
+      // Active hour check for adminThuNghiem1h (1 hour active, 1 hour inactive, repeating)
+      if (username === 'adminThuNghiem1h') {
+        const now = Date.now();
+        const hourMs = 3600 * 1000;
+        const currentHourIndex = Math.floor(now / hourMs);
+        const isActive = currentHourIndex % 2 === 0;
+        if (!isActive) {
+          const msRemaining = hourMs - (now % hourMs);
+          const minutesRemaining = Math.ceil(msRemaining / 60000);
+          return { 
+            success: false, 
+            message: `Tài khoản adminThuNghiem1h đang trong thời gian nghỉ vô hiệu lực. Vui lòng quay lại sau ${minutesRemaining} phút.` 
+          };
+        }
+      }
+
       const { users } = await fetchState();
       let user = users.find((u: any) => u.username === username);
       
@@ -136,6 +154,13 @@ export async function callApi(endpoint: string, method: string = 'POST', body?: 
            const adminId = `admin_${Date.now()}`;
            user = {
              id: adminId, name: 'Admin', username: 'admin', password: password, skillRating: 6.0,
+             isReady: false, status: 'free', courtId: null, waitStartTime: null, createdAt: Date.now()
+           };
+           await setDoc(doc(db, "users", adminId), user);
+        } else if (username === 'adminThuNghiem1h') {
+           const adminId = 'adminThuNghiem1h';
+           user = {
+             id: adminId, name: 'Admin Thử Nghiệm 1H', username: 'adminThuNghiem1h', password: password, skillRating: 5.0,
              isReady: false, status: 'free', courtId: null, waitStartTime: null, createdAt: Date.now()
            };
            await setDoc(doc(db, "users", adminId), user);

@@ -40,6 +40,19 @@ export default function App() {
       
       const latestUser = currentUserRef.current;
       if (latestUser) {
+        // Enforce 1-hour active/inactive cycle for adminThuNghiem1h immediately at poll interval
+        if (latestUser.username === 'adminThuNghiem1h') {
+          const now = Date.now();
+          const currentHourIndex = Math.floor(now / (3600 * 1000));
+          const isActive = currentHourIndex % 2 === 0;
+          if (!isActive) {
+            setCurrentUser(null);
+            setActiveTab('Đăng nhập');
+            showAlert('Thời lượng hoạt động 1 giờ của tài khoản thử nghiệm đã hết. Tài khoản hiện đang nghỉ vô hiệu lực trong 1 giờ tới!');
+            return;
+          }
+        }
+
         const upUser = data.users.find((u: User) => u.id === latestUser.id);
         if (upUser) {
            if (currentUserRef.current && currentUserRef.current.id === latestUser.id) {
@@ -87,7 +100,7 @@ export default function App() {
   // derived status bar text
   const emptyCourtsCount = state.courts.filter(c => c.status === 'empty').length;
 
-  const isAdmin = currentUser?.username === 'admin';
+  const isAdmin = currentUser?.username === 'admin' || currentUser?.username === 'adminThuNghiem1h';
 
   const tabs = [
     { name: 'Đăng nhập', show: !currentUser || isAdmin },
@@ -165,7 +178,18 @@ export default function App() {
           <div className="flex items-center space-x-4 max-w-7xl mx-auto w-full">
             <div className="text-[10px]">
               <span className="text-white/40 uppercase tracking-widest">Đăng nhập: </span>
-              <span className="ml-1 text-emerald-400 font-bold">{currentUser ? currentUser.username : 'Chưa đăng nhập'}</span>
+              <span className="ml-1 text-emerald-400 font-bold">
+                {currentUser ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <span>{currentUser.username}</span>
+                    {currentUser.username === 'adminThuNghiem1h' && (
+                      <span className="text-amber-400 text-[9px] font-normal tracking-wide lowercase bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                        (Còn {Math.ceil((3600 * 1000 - (Date.now() % (3600 * 1000))) / 60000)} phút hiệu lực)
+                      </span>
+                    )}
+                  </span>
+                ) : 'Chưa đăng nhập'}
+              </span>
             </div>
             <div className="flex items-center text-[10px] space-x-1 px-2 py-1 bg-white/5 rounded border border-white/10 uppercase tracking-widest ml-auto">
               <span className="text-white/40">Sân trống: </span>

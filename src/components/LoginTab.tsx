@@ -27,7 +27,14 @@ export default function LoginTab() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownRef]);
 
-  const filteredUsers = users.filter(u => u.username.toLowerCase().includes(username.toLowerCase()));
+  // Sort users: admin first, then rest sorted alphabetically by Vietnamese name
+  const sortedUsersList = [...users].sort((a, b) => {
+    if (a.username === 'admin') return -1;
+    if (b.username === 'admin') return 1;
+    return a.name.localeCompare(b.name, 'vi', { sensitivity: 'base' });
+  });
+
+  const filteredUsers = sortedUsersList.filter(u => u.username.toLowerCase().includes(username.toLowerCase()));
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

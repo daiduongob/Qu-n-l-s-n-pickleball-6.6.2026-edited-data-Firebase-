@@ -4,7 +4,7 @@ import { callApi } from '../api';
 import { User } from '../types';
 
 export default function AdminTab() {
-  const { users, matches, courts, refreshState, showAlert, showConfirm, setSelectedUserForProfile, setActiveTab } = useAppContext();
+  const { currentUser, users, matches, courts, refreshState, showAlert, showConfirm, setSelectedUserForProfile, setActiveTab } = useAppContext();
   
   const [editingUser, setEditingUser] = useState<User | null>(null);
   
@@ -47,6 +47,10 @@ export default function AdminTab() {
   };
 
   const handleEditClick = (u: User) => {
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Tài khoản adminThuNghiem1h không có quyền sửa đổi thông tin người chơi!');
+      return;
+    }
     setEditingUser(u);
     setEditName(u.name);
     setEditUsername(u.username);
@@ -72,6 +76,10 @@ export default function AdminTab() {
   };
 
   const handleDelete = async (id: string) => {
+    if (currentUser?.username === 'adminThuNghiem1h') {
+      showAlert('Tài khoản adminThuNghiem1h không có quyền xóa người chơi!');
+      return;
+    }
     if (id === 'admin') {
       showAlert('Không thể xóa admin');
       return;
