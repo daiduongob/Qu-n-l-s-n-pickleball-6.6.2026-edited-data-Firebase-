@@ -36,6 +36,11 @@ export default function CourtsTab() {
   };
 
   const handleReleaseCourt = async (id: string) => {
+    const court = courts.find(c => c.id === id);
+    if (court && court.status === 'playing') {
+      showAlert('Sân này đang trong trận đấu! Không thể giải phóng sân khi đang thi đấu.');
+      return;
+    }
     showConfirm('Giải phóng sân này? (Người chơi sẽ chuyển về danh sách chờ và giữ nguyên thời gian đã chờ)', async () => {
       const res = await callApi(`/api/courts/${id}/release`, 'POST');
       if (!res.success) {
@@ -74,6 +79,15 @@ export default function CourtsTab() {
             </div>
             
             <div className="flex-1">
+               {c.status === 'playing' && (
+                 <div className="mb-3 px-2 py-1.5 rounded bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[10px] font-bold flex items-center justify-between animate-pulse">
+                   <span className="flex items-center gap-1.5">
+                     <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
+                     ⚠️ SÂN ĐANG THI ĐẤU
+                   </span>
+                   <span className="text-[8px] uppercase tracking-wider text-rose-400 font-extrabold">Không thể giải phóng</span>
+                 </div>
+               )}
                {c.status !== 'empty' && c.players.length > 0 ? (
                  <div className="grid grid-cols-2 gap-2 text-[11px] mt-2">
                    {c.players.map((pid: string) => (
@@ -90,8 +104,19 @@ export default function CourtsTab() {
             <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center gap-2 text-sm">
               {c.status !== 'empty' ? (
                 <button 
-                  onClick={() => handleReleaseCourt(c.id)} 
-                  className="text-amber-400 hover:bg-amber-500/10 hover:text-white active:bg-amber-500/30 px-2 py-1 rounded text-xs uppercase tracking-widest font-bold active:scale-95 active:translate-y-[1px] transition-all duration-75"
+                  onClick={() => {
+                    if (c.status === 'playing') {
+                      showAlert('Trận đấu đang diễn ra trên sân này! Không thể giải phóng sân khi đang thi đấu.');
+                      return;
+                    }
+                    handleReleaseCourt(c.id);
+                  }} 
+                  disabled={c.status === 'playing'}
+                  className={`px-2 py-1 rounded text-xs uppercase tracking-widest font-bold transition-all duration-75 ${
+                    c.status === 'playing'
+                    ? 'text-white/20 bg-white/5 cursor-not-allowed border border-white/5 line-through decoration-rose-500/50'
+                    : 'text-amber-400 hover:bg-amber-500/10 hover:text-white active:bg-amber-500/30 active:scale-95 active:translate-y-[1px]'
+                  }`}
                 >
                   Giải phóng sân
                 </button>

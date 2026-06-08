@@ -129,19 +129,37 @@ export async function callApi(endpoint: string, method: string = 'POST', body?: 
     if (endpoint === '/api/login') {
       const { username, password } = body;
 
-      // Active hour check for adminThuNghiem1h (1 hour active, 1 hour inactive, repeating)
+      // Localized 1-hour active, 1-hour inactive repeating cycle for adminThuNghiem1h
       if (username === 'adminThuNghiem1h') {
         const now = Date.now();
-        const hourMs = 3600 * 1000;
-        const currentHourIndex = Math.floor(now / hourMs);
-        const isActive = currentHourIndex % 2 === 0;
-        if (!isActive) {
-          const msRemaining = hourMs - (now % hourMs);
-          const minutesRemaining = Math.ceil(msRemaining / 60000);
-          return { 
-            success: false, 
-            message: `Tài khoản adminThuNghiem1h đang trong thời gian nghỉ vô hiệu lực. Vui lòng quay lại sau ${minutesRemaining} phút.` 
-          };
+        const storedLoginTimeStr = typeof window !== 'undefined' ? localStorage.getItem('adminThuNghiem1h_loginTime') : null;
+        if (storedLoginTimeStr) {
+          const loginTime = parseInt(storedLoginTimeStr, 10);
+          const elapsed = now - loginTime;
+          const activeMs = 3600 * 1000;       // 1 hour active duration
+          const cooldownMs = 2 * 3600 * 1000;  // 1 hour active + 1 hour cooldown duration
+
+          if (elapsed < activeMs) {
+            // Already started and active within the first hour. Allow login/refresh.
+          } else if (elapsed < cooldownMs) {
+            // Currently within the second hour (inactive cooldown). Deny login.
+            const remainingCooldownMs = cooldownMs - elapsed;
+            const minutesRemaining = Math.max(1, Math.ceil(remainingCooldownMs / 60000));
+            return { 
+              success: false, 
+              message: `Tài khoản adminThuNghiem1h đang trong thời gian nghỉ vô hiệu lực. Vui lòng quay lại sau ${minutesRemaining} phút.` 
+            };
+          } else {
+            // Over 2 hours. Reset cycle and start new active hour.
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('adminThuNghiem1h_loginTime', now.toString());
+            }
+          }
+        } else {
+          // No record. Start active hour.
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('adminThuNghiem1h_loginTime', now.toString());
+          }
         }
       }
 

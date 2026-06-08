@@ -40,12 +40,24 @@ export default function App() {
       
       const latestUser = currentUserRef.current;
       if (latestUser) {
-        // Enforce 1-hour active/inactive cycle for adminThuNghiem1h immediately at poll interval
+        // Enforce 1-hour active/inactive cycle for adminThuNghiem1h immediately at poll interval using localStorage
         if (latestUser.username === 'adminThuNghiem1h') {
           const now = Date.now();
-          const currentHourIndex = Math.floor(now / (3600 * 1000));
-          const isActive = currentHourIndex % 2 === 0;
-          if (!isActive) {
+          const storedLoginTimeStr = localStorage.getItem('adminThuNghiem1h_loginTime');
+          let shouldLogout = false;
+          if (storedLoginTimeStr) {
+            const loginTime = parseInt(storedLoginTimeStr, 10);
+            const elapsed = now - loginTime;
+            const activeMs = 3600 * 1000;
+            const cooldownMs = 2 * 3600 * 1000;
+            if (elapsed >= activeMs && elapsed < cooldownMs) {
+              shouldLogout = true;
+            }
+          } else {
+            localStorage.setItem('adminThuNghiem1h_loginTime', now.toString());
+          }
+
+          if (shouldLogout) {
             setCurrentUser(null);
             setActiveTab('Đăng nhập');
             showAlert('Thời lượng hoạt động 1 giờ của tài khoản thử nghiệm đã hết. Tài khoản hiện đang nghỉ vô hiệu lực trong 1 giờ tới!');
@@ -190,11 +202,20 @@ export default function App() {
                 {currentUser ? (
                   <span className="inline-flex items-center gap-1.5">
                     <span>{currentUser.username}</span>
-                    {currentUser.username === 'adminThuNghiem1h' && (
-                      <span className="text-amber-400 text-[9px] font-normal tracking-wide lowercase bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                        (Còn {Math.ceil((3600 * 1000 - (Date.now() % (3600 * 1000))) / 60000)} phút hiệu lực)
-                      </span>
-                    )}
+                    {currentUser.username === 'adminThuNghiem1h' && (() => {
+                      const stored = localStorage.getItem('adminThuNghiem1h_loginTime');
+                      if (stored) {
+                        const elapsed = Date.now() - parseInt(stored, 10);
+                        const remainingMs = 3600 * 1000 - elapsed;
+                        const remainingMin = Math.max(0, Math.ceil(remainingMs / 60000));
+                        return (
+                          <span className="text-amber-400 text-[9px] font-normal tracking-wide lowercase bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                            (Còn {remainingMin} phút hiệu lực)
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
                   </span>
                 ) : 'Chưa đăng nhập'}
               </span>
