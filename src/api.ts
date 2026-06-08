@@ -102,7 +102,28 @@ async function autoMatchDB() {
 }
 
 
+let activeCalls = 0;
+
+function incrementActiveCalls() {
+  if (typeof document !== 'undefined') {
+    activeCalls++;
+    if (activeCalls === 1) {
+      document.documentElement.classList.add('busy-cursor');
+    }
+  }
+}
+
+function decrementActiveCalls() {
+  if (typeof document !== 'undefined') {
+    activeCalls = Math.max(0, activeCalls - 1);
+    if (activeCalls === 0) {
+      document.documentElement.classList.remove('busy-cursor');
+    }
+  }
+}
+
 export async function callApi(endpoint: string, method: string = 'POST', body?: any) {
+  incrementActiveCalls();
   try {
     if (endpoint === '/api/login') {
       const { username, password } = body;
@@ -318,5 +339,7 @@ export async function callApi(endpoint: string, method: string = 'POST', body?: 
   } catch (error: any) {
     console.error("Firestore Error:", error);
     return { success: false, message: error.message };
+  } finally {
+    decrementActiveCalls();
   }
 }

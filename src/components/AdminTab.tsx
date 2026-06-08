@@ -15,6 +15,7 @@ export default function AdminTab() {
   const [editSkill, setEditSkill] = useState(0);
   const [editIsReady, setEditIsReady] = useState(false);
   const [editStatus, setEditStatus] = useState<'free' | 'playing'>('free');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Match counts for sorting
   const userMatchCounts: Record<string, number> = {};
@@ -24,7 +25,21 @@ export default function AdminTab() {
     m.teamB.forEach(id => userMatchCounts[id] = (userMatchCounts[id] || 0) + 1);
   });
 
-  const sortedUsers = [...users].sort((a, b) => (userMatchCounts[b.id] || 0) - (userMatchCounts[a.id] || 0));
+  // Sort alphabetically by name (Vietnamese locale)
+  const sortedUsers = [...users].sort((a, b) => a.name.localeCompare(b.name, 'vi', { sensitivity: 'base' }));
+
+  const normalizeStr = (str: string) => {
+    return str
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d");
+  };
+
+  const filteredUsers = sortedUsers.filter(u => {
+    if (!searchQuery.trim()) return true;
+    return normalizeStr(u.name).includes(normalizeStr(searchQuery));
+  });
 
   const getCourtName = (id: string | null) => {
     if (!id) return '-';
@@ -74,16 +89,36 @@ export default function AdminTab() {
 
   return (
     <div className="p-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-white animate-fade-in">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-sm font-bold uppercase tracking-wider text-emerald-400">Admin - Quản lý Người Chơi</h2>
           <p className="text-[10px] text-white/40 mt-1 uppercase tracking-tight">Mẹo: Bấm vào một dòng để mở xem nhanh trang cá nhân & thống kê chi tiết</p>
         </div>
+        <div className="relative w-full md:w-64 shrink-0">
+          <input 
+            type="text" 
+            placeholder="Tìm theo tên..." 
+            className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-8 pr-12 text-xs text-white focus:outline-none focus:border-emerald-500 placeholder-white/30"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+          <svg className="w-3.5 h-3.5 text-white/40 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-white/40 hover:text-white uppercase font-bold active:scale-90"
+            >
+              xóa
+            </button>
+          )}
+        </div>
       </div>
       
-      <div className="overflow-x-auto border border-white/10 rounded-lg bg-slate-900/50">
+      <div className="overflow-auto max-h-[555px] border border-white/10 rounded-lg bg-slate-900/50 relative">
         <table className="w-full text-xs text-left whitespace-nowrap table-fixed min-w-[1050px]">
-          <thead className="bg-white/5 text-white/40 uppercase text-[10px] tracking-widest border-b border-white/10">
+          <thead className="bg-[#0f172a] text-white/40 uppercase text-[10px] tracking-widest border-b border-white/10 sticky top-0 z-10">
             <tr>
               <th className="p-3 text-center w-[60px]">STT</th>
               <th className="p-3 w-[240px]">Tên</th>
@@ -97,7 +132,7 @@ export default function AdminTab() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {sortedUsers.map((u, i) => (
+            {filteredUsers.map((u, i) => (
               <tr 
                 key={u.id} 
                 onClick={() => handleRowClick(u)}
