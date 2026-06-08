@@ -303,20 +303,56 @@ export async function callApi(endpoint: string, method: string = 'POST', body?: 
         const court = cSnap.data();
         const A_win = body.scoreA > body.scoreB;
         const B_win = body.scoreB > body.scoreA;
+        const isDraw = body.scoreA === body.scoreB;
+        const teamA = body.teamA || court.players.slice(0, 2);
+        const teamB = body.teamB || court.players.slice(2, 4);
+
         const matchDoc = {
-          id: Date.now().toString(), courtName: court.name, teamA: body.teamA || court.players.slice(0, 2),
-          teamB: body.teamB || court.players.slice(2, 4), scoreA: body.scoreA, scoreB: body.scoreB, date: Date.now()
+          id: Date.now().toString(), courtName: court.name, teamA, teamB, scoreA: body.scoreA, scoreB: body.scoreB, date: Date.now()
         };
         const batch = writeBatch(db);
         batch.set(doc(db, "matches", matchDoc.id), matchDoc);
         
+        // Fetch users to calculate skills
+        const playersData: Record<string, any> = {};
         for (const pid of court.players) {
-           const uSnap = await getDoc(doc(db, "users", pid));
-           if (uSnap.exists()) {
-              const u = uSnap.data();
+          const uSnap = await getDoc(doc(db, "users", pid));
+          if (uSnap.exists()) {
+             playersData[pid] = uSnap.data();
+          }
+        }
+
+        let changeWinner = 0.20;
+        let changeLoser = -0.20;
+
+        if (!isDraw && body.updateRatings !== false) {
+          const ratingA1 = playersData[teamA[0]]?.skillRating || 3.0;
+          const ratingA2 = playersData[teamA[1]]?.skillRating || 3.0;
+          const ratingB1 = playersData[teamB[0]]?.skillRating || 3.0;
+          const ratingB2 = playersData[teamB[1]]?.skillRating || 3.0;
+
+          const teamRatingA = ratingA1 + ratingA2;
+          const teamRatingB = ratingB1 + ratingB2;
+
+          const winnerRating = A_win ? teamRatingA : teamRatingB;
+          const loserRating = A_win ? teamRatingB : teamRatingA;
+
+          // Gap = WinnerRating - LoserRating
+          const gap = winnerRating - loserRating;
+
+          // Higher reward for winning as lower rated team, higher penalty for losing as higher rated team
+          changeWinner = Math.max(0.05, Math.min(0.45, Number((0.20 - gap * 0.05).toFixed(2))));
+          changeLoser = -changeWinner;
+        }
+
+        for (const pid of court.players) {
+           const u = playersData[pid];
+           if (u) {
               let ratingChange = 0;
-              if (matchDoc.teamA.includes(pid)) ratingChange = A_win ? 0.1 : (A_win === B_win ? 0 : -0.1);
-              else if (matchDoc.teamB.includes(pid)) ratingChange = B_win ? 0.1 : (A_win === B_win ? 0 : -0.1);
+              if (body.updateRatings !== false && !isDraw) {
+                const isWinner = (teamA.includes(pid) && A_win) || (teamB.includes(pid) && B_win);
+                ratingChange = isWinner ? changeWinner : changeLoser;
+              }
               const newRating = Math.max(1.0, Math.min(6.0, Number((u.skillRating + ratingChange).toFixed(1))));
               batch.update(doc(db, "users", pid), { 
                 status: 'free', 

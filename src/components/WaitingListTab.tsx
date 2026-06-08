@@ -10,6 +10,7 @@ export default function WaitingListTab() {
   const [endingCourt, setEndingCourt] = useState<Court | null>(null);
   const [scoreA, setScoreA] = useState(0);
   const [scoreB, setScoreB] = useState(0);
+  const [updateRatings, setUpdateRatings] = useState(true);
 
   const [adjustingCourt, setAdjustingCourt] = useState<Court | null>(null);
   const [adjustedPlayers, setAdjustedPlayers] = useState<string[]>([]); // 4 player ids
@@ -28,10 +29,11 @@ export default function WaitingListTab() {
   const handleEndMatch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!endingCourt) return;
-    await callApi(`/api/courts/${endingCourt.id}/end`, 'POST', { scoreA, scoreB });
+    await callApi(`/api/courts/${endingCourt.id}/end`, 'POST', { scoreA, scoreB, updateRatings });
     setEndingCourt(null);
     setScoreA(0);
     setScoreB(0);
+    setUpdateRatings(true);
     refreshState();
   };
 
@@ -217,6 +219,20 @@ export default function WaitingListTab() {
                   <input type="number" required className="w-20 bg-white/5 border border-white/10 p-2 text-center text-xl font-bold rounded focus:outline-none focus:border-emerald-500 text-white" value={scoreB} onChange={e=>setScoreB(Number(e.target.value))}/>
                 </div>
               </div>
+
+              <div className="my-4 p-3 bg-white/5 border border-white/10 rounded-lg">
+                <p className="text-[11px] text-white/60 mb-2 font-medium leading-relaxed">Bạn có muốn cập nhật điểm trình cho trận đấu vừa rồi không?</p>
+                <label className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+                  <input 
+                    type="checkbox" 
+                    className="accent-emerald-500 w-4.5 h-4.5 cursor-pointer rounded"
+                    checked={updateRatings}
+                    onChange={e => setUpdateRatings(e.target.checked)}
+                  />
+                  <span className="text-xs font-bold text-emerald-400 select-none uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded">Có</span>
+                </label>
+              </div>
+
               <div className="flex justify-end gap-2 mt-6">
                 <button type="button" onClick={()=>setEndingCourt(null)} className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 active:bg-white/20 uppercase tracking-widest text-xs font-bold active:scale-95 active:translate-y-[1px] transition-all duration-75">Hủy</button>
                 <button type="submit" className="px-4 py-2 bg-emerald-500 text-slate-950 font-black rounded-lg hover:bg-emerald-400 active:bg-emerald-600 active:text-white uppercase tracking-tight text-xs active:scale-95 active:translate-y-[1px] transition-all duration-75">Lưu KQ & Rời</button>
