@@ -395,6 +395,79 @@ export async function callApi(endpoint: string, method: string = 'POST', body?: 
       }
       return { success: false };
     }
+
+    if (endpoint.match(/\/api\/courts\/.*\/release/)) {
+      const id = endpoint.split('/')[3];
+      const cRef = doc(db, "courts", id);
+      const cSnap = await getDoc(cRef);
+      if (cSnap.exists()) {
+        const court = cSnap.data();
+        const batch = writeBatch(db);
+        if (court.players && court.players.length > 0) {
+          for (const pid of court.players) {
+            batch.update(doc(db, "users", pid), {
+              status: 'free',
+              courtId: null,
+              isReady: true
+            });
+          }
+        }
+        batch.update(cRef, { 
+          status: 'empty', 
+          players: [], 
+          waitingTime: null,
+          lastReleasedPlayers: court.players || []
+        });
+        await batch.commit();
+        // Do NOT trigger autoMatchDB() as requested
+        return { success: true };
+      }
+      return { success: false, message: 'Không tìm thấy sân' };
+    }
+
+    if (endpoint === '/api/courts/re-trigger-released') {
+      const courtsSnap = await getDocs(collection(db, "courts"));
+      const batch = writeBatch(db);
+      let triggered = false;
+      for (const docObj of courtsSnap.docs) {
+        const court = docObj.data();
+        if (court.status === 'empty' && court.lastReleasedPlayers && court.lastReleasedPlayers.length > 0) {
+          const availablePids: string[] = [];
+          for (const pid of court.lastReleasedPlayers) {
+            const uSnap = await getDoc(doc(db, "users", pid));
+            if (uSnap.exists()) {
+              const u = uSnap.data();
+              if (u.isReady && u.status === 'free' && !u.courtId) {
+                availablePids.push(pid);
+              }
+            }
+          }
+          if (availablePids.length > 0) {
+            batch.update(docObj.ref, {
+              status: 'waiting_list',
+              players: availablePids,
+              waitingTime: Date.now(),
+              lastReleasedPlayers: null
+            });
+            for (const pid of availablePids) {
+              batch.update(doc(db, "users", pid), {
+                courtId: docObj.id
+              });
+            }
+            triggered = true;
+          } else {
+            batch.update(docObj.ref, {
+              lastReleasedPlayers: null
+            });
+          }
+        }
+      }
+      await batch.commit();
+      if (triggered) {
+        await autoMatchDB();
+      }
+      return { success: true };
+    }
     
     return { success: false, message: 'Not Implemented in Mock' };
   } catch (error: any) {

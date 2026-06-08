@@ -302,6 +302,61 @@ async function startServer() {
     }
   });
 
+  app.post('/api/courts/:id/release', (req, res) => {
+    const court = courts.find(c => c.id === req.params.id);
+    if (court) {
+      court.lastReleasedPlayers = [...court.players];
+      court.players.forEach(pid => {
+        const u = users.find(x => x.id === pid);
+        if (u) {
+          u.status = 'free';
+          u.courtId = null;
+          u.isReady = true;
+          // Note: u.waitStartTime is NOT reset or changed
+        }
+      });
+      court.status = 'empty';
+      court.players = [];
+      court.waitingTime = null;
+      // Do NOT trigger autoMatch() to keep the court free as requested
+      res.json({ success: true });
+    } else {
+      res.status(400).json({ success: false, message: 'Không tìm thấy sân' });
+    }
+  });
+
+  app.post('/api/courts/re-trigger-released', (req, res) => {
+    let triggered = false;
+    courts.forEach(court => {
+      if (court.status === 'empty' && court.lastReleasedPlayers && court.lastReleasedPlayers.length > 0) {
+        // filter players who are currently free and ready and don't have a courtId
+        const availablePids = court.lastReleasedPlayers.filter((pid: string) => {
+          const u = users.find(x => x.id === pid);
+          return u && u.isReady && u.status === 'free' && !u.courtId;
+        });
+
+        if (availablePids.length > 0) {
+          court.status = 'waiting_list';
+          court.players = availablePids;
+          court.waitingTime = Date.now();
+          availablePids.forEach((pid: string) => {
+            const u = users.find(x => x.id === pid);
+            if (u) {
+              u.courtId = court.id;
+            }
+          });
+          triggered = true;
+        }
+        delete court.lastReleasedPlayers;
+      }
+    });
+
+    if (triggered) {
+      autoMatch();
+    }
+    res.json({ success: true });
+  });
+
   // --- VITE MIDDLEWARE ---
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

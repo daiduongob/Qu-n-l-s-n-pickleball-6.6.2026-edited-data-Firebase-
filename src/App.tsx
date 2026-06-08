@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { AppContext } from './context';
 import { AppState, User } from './types';
-import { fetchState } from './api';
+import { fetchState, callApi } from './api';
 
 import LoginTab from './components/LoginTab';
 import ProfileTab from './components/ProfileTab';
@@ -105,17 +105,25 @@ export default function App() {
   const tabs = [
     { name: 'Đăng nhập', show: !currentUser || isAdmin },
     { name: 'Trang cá nhân', show: !!currentUser },
-    { name: 'Quản lý sân & Trận đấu', show: isAdmin },
+    { name: 'Quản lý Sân đấu', show: isAdmin },
     { name: 'Danh sách chờ', show: !!currentUser },
     { name: 'Thống kê báo cáo', show: isAdmin },
     { name: 'Admin', show: isAdmin },
     { name: 'Đăng xuất', show: !!currentUser },
   ];
 
-  const handleTabClick = (t: string) => {
+  const handleTabClick = async (t: string) => {
     if (t === 'Đăng xuất') {
       handleLogout();
     } else {
+      if (activeTab === 'Quản lý Sân đấu' && t !== 'Quản lý Sân đấu') {
+        try {
+          await callApi('/api/courts/re-trigger-released', 'POST');
+          refreshState();
+        } catch (e) {
+          console.error(e);
+        }
+      }
       if (t === 'Trang cá nhân') {
         setSelectedUserForProfile(null);
       }
@@ -167,7 +175,7 @@ export default function App() {
         <main className="relative z-10 flex-1 max-w-7xl mx-auto w-full p-4 overflow-y-auto">
           {activeTab === 'Đăng nhập' && <LoginTab />}
           {activeTab === 'Trang cá nhân' && currentUser && <ProfileTab />}
-          {activeTab === 'Quản lý sân & Trận đấu' && isAdmin && <CourtsTab />}
+          {activeTab === 'Quản lý Sân đấu' && isAdmin && <CourtsTab />}
           {activeTab === 'Danh sách chờ' && currentUser && <WaitingListTab />}
           {activeTab === 'Thống kê báo cáo' && <StatsTab />}
           {activeTab === 'Admin' && isAdmin && <AdminTab />}

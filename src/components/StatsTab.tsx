@@ -125,12 +125,16 @@ export default function StatsTab() {
         </div>
 
         {/* Most active users */}
-        <div className="p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md max-h-64 overflow-y-auto">
-          <h3 className="text-emerald-400 font-bold uppercase tracking-widest text-[10px] mb-3 flex justify-between sticky top-0 bg-slate-900/40 backdrop-blur-sm py-1">
-            <span>CHĂM CHỈ NHẤT (SỐ TRẬN)</span>
+        <div className="p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md h-64 flex flex-col">
+          <h3 className="text-emerald-400 font-bold uppercase tracking-widest text-[10px] mb-3 flex justify-between items-center">
+            <span>NGƯỜI CHƠI TÍCH CỰC NHẤT</span>
             <Trophy className="w-3 h-3 text-emerald-400" />
           </h3>
-          <ul className="text-xs space-y-2">
+          <div className="flex justify-between items-center text-[9px] text-white/40 uppercase font-black tracking-widest px-2 pb-2 mb-2 border-b border-white/5">
+            <span>Xếp hạng / Tên người chơi</span>
+            <span>Tổng số trận</span>
+          </div>
+          <ul className="text-xs space-y-2 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
              {mostActiveUsers.map((u, i) => (
                 <li key={u.id} className="flex justify-between items-center text-white/80 p-2 rounded bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
                    <span className="flex items-center gap-2">

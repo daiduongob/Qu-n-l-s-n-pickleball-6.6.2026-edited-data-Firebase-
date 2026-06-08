@@ -20,12 +20,29 @@ export default function CourtsTab() {
       showAlert('Tài khoản adminThuNghiem1h không có quyền xóa Sân!');
       return;
     }
+    const court = courts.find(c => c.id === id);
+    if (court && court.status !== 'empty') {
+      showAlert('Chỉ có thể xóa sân khi sân trống!');
+      return;
+    }
     showConfirm('Xóa sân này?', async () => {
       const res = await callApi(`/api/courts/${id}`, 'DELETE');
       if (!res.success) {
         showAlert(res.message || 'Lỗi khi xóa sân');
       } else {
         refreshState();
+      }
+    });
+  };
+
+  const handleReleaseCourt = async (id: string) => {
+    showConfirm('Giải phóng sân này? (Người chơi sẽ chuyển về danh sách chờ và giữ nguyên thời gian đã chờ)', async () => {
+      const res = await callApi(`/api/courts/${id}/release`, 'POST');
+      if (!res.success) {
+        showAlert(res.message || 'Lỗi khi giải phóng sân');
+      } else {
+        refreshState();
+        showAlert('Đã giải phóng sân thành công.');
       }
     });
   };
@@ -70,7 +87,17 @@ export default function CourtsTab() {
                )}
             </div>
 
-            <div className="mt-4 pt-4 border-t border-white/10 flex justify-end gap-2 text-sm">
+            <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center gap-2 text-sm">
+              {c.status !== 'empty' ? (
+                <button 
+                  onClick={() => handleReleaseCourt(c.id)} 
+                  className="text-amber-400 hover:bg-amber-500/10 hover:text-white active:bg-amber-500/30 px-2 py-1 rounded text-xs uppercase tracking-widest font-bold active:scale-95 active:translate-y-[1px] transition-all duration-75"
+                >
+                  Giải phóng sân
+                </button>
+              ) : (
+                <span className="text-xs text-white/20 italic">Sân đang trống</span>
+              )}
               <button onClick={() => handleDeleteCourt(c.id)} className="text-rose-400 hover:bg-rose-500/10 hover:text-white active:bg-rose-500/30 px-2 py-1 rounded text-xs uppercase tracking-widest font-bold active:scale-90 active:translate-y-[1px] transition-all duration-75">Xóa sân</button>
             </div>
           </div>
